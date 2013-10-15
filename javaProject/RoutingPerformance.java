@@ -30,6 +30,7 @@ public class RoutingPerformance {
 					vnet.closeExpiredCircuits(currentTime);
 				}
 				
+				// TODO - what about the strategy considerations - dijkstra shit
 				boolean requestSuccess = vnet.requestCircuit(req);
 				if (!requestSuccess) {
 					// TODO - just do this right?
