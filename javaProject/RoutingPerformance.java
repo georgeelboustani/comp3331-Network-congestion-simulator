@@ -16,6 +16,8 @@ public class RoutingPerformance {
 		System.out.println(vnet.getLink(0,1).delay);
 		System.out.println(vnet.getLink(1,2).delay);
 		
+		int numFailedRequests = 0;
+		
 		try {
 			
 			long startTime = System.currentTimeMillis();
@@ -29,7 +31,10 @@ public class RoutingPerformance {
 				}
 				
 				boolean requestSuccess = vnet.requestCircuit(req);
-				
+				if (!requestSuccess) {
+					// TODO - just do this right?
+					numFailedRequests++;
+				}
 			}
 			
 		} catch (NumberFormatException e) {
