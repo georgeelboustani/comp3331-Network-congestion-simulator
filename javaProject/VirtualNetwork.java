@@ -41,7 +41,9 @@ public class VirtualNetwork {
 		for (int source = 0; source < 26; source++) {
 			for (int dest = 0; dest < 26; dest++) {
 				LinkInfo link = graph[source][dest];
-				link.removeExpiredCircuits(currentTime);
+				if (link != null) {
+					link.removeExpiredCircuits(currentTime);
+				}
 			}
 		}
 	}
@@ -51,7 +53,7 @@ public class VirtualNetwork {
 		
 		LinkInfo link = graph[req.getSource()][req.getDestination()];
 		
-		if (link.connections < link.size) {
+		if (link != null && link.connections < link.size) {
 			link.addCircuit(req.getTime() + req.getActive());
 			
 			link.connections++;

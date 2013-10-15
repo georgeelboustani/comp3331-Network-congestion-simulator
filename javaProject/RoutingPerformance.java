@@ -28,6 +28,7 @@ public class RoutingPerformance {
 				while (currentTime < req.getActive()) {
 					// Close expired circuits
 					vnet.closeExpiredCircuits(currentTime);
+					currentTime = System.currentTimeMillis() - startTime;
 				}
 				
 				// TODO - what about the strategy considerations - dijkstra shit
@@ -35,6 +36,8 @@ public class RoutingPerformance {
 				if (!requestSuccess) {
 					// TODO - just do this right?
 					numFailedRequests++;
+				} else {
+					System.out.println(currentTime + "added circuit" + numFailedRequests);
 				}
 			}
 			
