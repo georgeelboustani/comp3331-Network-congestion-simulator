@@ -83,7 +83,7 @@ public class VirtualNetwork {
 	
 	public List<Link> dijkstraSearch(int source,int dest,String algorithm) {
 		
-		int[] dist = new int[26];
+		double[] dist = new double[26];
 		int[] prev = new int[26];
 		
 		for (int i = 0; i < 26; i++) {
@@ -104,7 +104,18 @@ public class VirtualNetwork {
 			
 			for (int v = 0; v < graph[nodeU].length; v++) {
 				if (graph[nodeU][v] != null) {
-					int alt = dist[nodeU] + costBetween(nodeU,v,algorithm);
+					double alt;
+					
+					if ("LLP".equals(algorithm)) {
+						if (dist[nodeU] < costBetween(nodeU,v,algorithm)) {
+							alt = costBetween(nodeU,v,algorithm);
+						} else {
+							alt = dist[nodeU];
+						}
+					} else {
+						alt = dist[nodeU] + costBetween(nodeU,v,algorithm);
+					}
+
 					if (alt < dist[v]) {
 						dist[v] = alt;
 						prev[v] = nodeU;
@@ -133,16 +144,16 @@ public class VirtualNetwork {
 		return path;
 	}
 	
-	private int costBetween(int nodeU, int v, String algorithm) {
+	private double costBetween(int nodeU, int v, String algorithm) {
 		// algorithm = SHP SDP LLP
-		int cost = 0;
+		double cost = 0;
 		
 		if ("SHP".equals(algorithm)) {
 			cost = 1;
 		} else if ("SDP".equals(algorithm)) {
 			cost = graph[nodeU][v].delay;
 		} else if ("LLP".equals(algorithm)) {
-			
+			cost = graph[nodeU][v].connections/graph[nodeU][v].size;
 		}
 		
 		return cost;
@@ -171,9 +182,9 @@ public class VirtualNetwork {
 		return isConnected;
 	}
 	
-	private int getShortestDistanceInQ(List<Integer> Q, int[] dist) {
+	private int getShortestDistanceInQ(List<Integer> Q, double[] dist) {
 		int closestNode = -1;
-		int shortestDistance = Integer.MAX_VALUE;
+		double shortestDistance = Integer.MAX_VALUE;
 		
 		for (Integer node: Q) {
 			if (dist[node] < shortestDistance) {
