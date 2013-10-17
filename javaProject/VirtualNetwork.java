@@ -153,7 +153,7 @@ public class VirtualNetwork {
 		} else if ("SDP".equals(algorithm)) {
 			cost = graph[nodeU][v].delay;
 		} else if ("LLP".equals(algorithm)) {
-			cost = graph[nodeU][v].connections/graph[nodeU][v].size;
+			cost = (double)graph[nodeU][v].connections/graph[nodeU][v].size;
 		}
 		
 		return cost;
