@@ -48,18 +48,26 @@ public class VirtualNetwork {
 		}
 	}
 	
-	public boolean requestCircuit(CircuitRequest req, String algorithm) {
+	public RequestFeedback requestCircuit(CircuitRequest req, String algorithm) {
 		boolean success = true;
 		
-		// TODO - call dijkstra here and figure out path
 		List<Link> path = dijkstraSearch(req.getSource(),req.getDestination(),algorithm);
 		
+		int hops = 0;
+		double cumulativeDelay = 0;
+		
 		if (path.size() == 0) {
+			hops = path.size();
+			cumulativeDelay = 0;
 			success = false;
 		} else {
+			hops = path.size();
+			cumulativeDelay = 0;
 			
 			for (Link link: path) {
 				LinkInfo linkInfo = graph[link.source][link.destination];
+				
+				cumulativeDelay += linkInfo.delay;
 				
 				if (linkInfo != null && linkInfo.connections < linkInfo.size) {
 					
@@ -77,7 +85,7 @@ public class VirtualNetwork {
 			}
 		}
 		
-		return success;
+		return new RequestFeedback(success,hops,cumulativeDelay);
 	}
 	
 	
@@ -203,6 +211,42 @@ public class VirtualNetwork {
 
 	public LinkInfo getLinkInfo(int node, int destination) {
 		return this.graph[node][destination];
+	}
+	
+	public static class RequestFeedback {
+		private boolean success;
+		private int hops;
+		private double cumulativeDelay;
+		
+		public RequestFeedback(boolean success,int hops,double cumulativeDelay) {
+			this.success = success;
+			this.hops = hops;
+			this.cumulativeDelay = cumulativeDelay;
+		}
+
+		public boolean isSuccess() {
+			return success;
+		}
+
+		public void setSuccess(boolean success) {
+			this.success = success;
+		}
+
+		public int getHops() {
+			return hops;
+		}
+
+		public void setHops(int hops) {
+			this.hops = hops;
+		}
+
+		public double getCumulativeDelay() {
+			return cumulativeDelay;
+		}
+
+		public void setCumulativeDelay(double cumulativeDelay) {
+			this.cumulativeDelay = cumulativeDelay;
+		}
 	}
 	
 	public static class Link {

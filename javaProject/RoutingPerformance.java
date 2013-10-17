@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-
 public class RoutingPerformance {
 	
 	public static void main(String args[]) {
@@ -18,22 +17,27 @@ public class RoutingPerformance {
 		int totalRequests = 0;
 		
 		try {
+			double averageHops = 0;
+			double averageCumulativeDelay = 0;
 			
 			for (CircuitRequest req: CircuitRequest.generateCircuitRequests(workloadFileName)) {
 				double currentTime = req.getTime();
 				
 				vnet.closeExpiredCircuits(currentTime);
 				
-				boolean requestSuccess = vnet.requestCircuit(req,algorithm);
-				if (!requestSuccess) {
+				VirtualNetwork.RequestFeedback res = vnet.requestCircuit(req,algorithm);
+				if (!res.isSuccess()) {
 					numFailedRequests++;
+				} else {
+					averageHops += res.getHops();
+					averageCumulativeDelay += res.getCumulativeDelay();
 				}
 				
 				totalRequests++;
 			}
 			
-			double averageHops = 0;
-			double averageCumulativeDelay = 0;
+			averageHops /= totalRequests;
+			averageCumulativeDelay /= totalRequests;
 			
 			System.out.println("total number of virtual circuit requests: " + totalRequests);
 			System.out.println("number of succesfully routed requests: " + (totalRequests - numFailedRequests));
