@@ -32,9 +32,16 @@ public class RoutingPerformance {
 				totalRequests++;
 			}
 			
-			System.out.println("Total number of requests: " + totalRequests);
-			System.out.println("Number of failed requests: " + numFailedRequests);
-			System.out.println("% Failures: " + ((double)numFailedRequests/totalRequests)*100 + "%");
+			double averageHops = 0;
+			double averageCumulativeDelay = 0;
+			
+			System.out.println("total number of virtual circuit requests: " + totalRequests);
+			System.out.println("number of succesfully routed requests: " + (totalRequests - numFailedRequests));
+			System.out.println("percentage of succesfully routed request: " + (((double)(totalRequests - numFailedRequests)/totalRequests)*100));
+			System.out.println("number of blocked requests: " + numFailedRequests);
+			System.out.println("percentage of blocked requests: " + (((double)numFailedRequests/totalRequests)*100));
+			System.out.println("average number of hops per circuit: " + averageHops);
+			System.out.println("average cumulative propagation delay per circuit: " + averageCumulativeDelay);
 			
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
