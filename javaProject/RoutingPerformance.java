@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 
 public class RoutingPerformance {
@@ -13,40 +14,33 @@ public class RoutingPerformance {
 		
 		VirtualNetwork vnet = VirtualNetwork.generateNetwork(topologyFileName);
 		
-		System.out.println(vnet.getLink(0,1).delay);
-		System.out.println(vnet.getLink(1,2).delay);
-		
 		int numFailedRequests = 0;
+		int totalRequests = 0;
 		
 		try {
 			
-			long startTime = System.currentTimeMillis();
-			
 			for (CircuitRequest req: CircuitRequest.generateCircuitRequests(workloadFileName)) {
-				long currentTime = System.currentTimeMillis() - startTime;
+				double currentTime = req.getTime();
 				
-				while (currentTime < req.getActive()) {
-					// Close expired circuits
-					vnet.closeExpiredCircuits(currentTime);
-					currentTime = System.currentTimeMillis() - startTime;
-				}
+				vnet.closeExpiredCircuits(currentTime);
 				
-				// TODO - what about the strategy considerations - dijkstra shit
-				boolean requestSuccess = vnet.requestCircuit(req);
+				boolean requestSuccess = vnet.requestCircuit(req,algorithm);
 				if (!requestSuccess) {
-					// TODO - just do this right?
 					numFailedRequests++;
-				} else {
-					System.out.println(currentTime + "added circuit" + numFailedRequests);
 				}
+				
+				totalRequests++;
 			}
+			
+			System.out.println("Total number of requests: " + totalRequests);
+			System.out.println("Number of failed requests: " + numFailedRequests);
+			System.out.println("% Failures: " + ((double)numFailedRequests/totalRequests)*100 + "%");
 			
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 	}
 
 }

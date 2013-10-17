@@ -48,30 +48,160 @@ public class VirtualNetwork {
 		}
 	}
 	
-	public boolean requestCircuit(CircuitRequest req) {
+	public boolean requestCircuit(CircuitRequest req, String algorithm) {
 		boolean success = true;
 		
-		LinkInfo link = graph[req.getSource()][req.getDestination()];
+		// TODO - call dijkstra here and figure out path
+		List<Link> path = dijkstraSearch(req.getSource(),req.getDestination(),algorithm);
 		
-		if (link != null && link.connections < link.size) {
-			link.addCircuit(req.getTime() + req.getActive());
-			
-			link.connections++;
-		} else {
+		if (path.size() == 0) {
 			success = false;
+		} else {
+			
+			for (Link link: path) {
+				LinkInfo linkInfo = graph[link.source][link.destination];
+				
+				if (linkInfo != null && linkInfo.connections < linkInfo.size) {
+					
+				} else {
+					success = false;
+					break;
+				}
+			}
+			
+			if (success) {
+				for (Link link: path) {
+					LinkInfo linkInfo = graph[link.source][link.destination];
+					linkInfo.addCircuit(req.getTime() + req.getActive());
+				}
+			}
 		}
 		
 		return success;
 	}
 	
+	
+	public List<Link> dijkstraSearch(int source,int dest,String algorithm) {
+		
+		int[] dist = new int[26];
+		int[] prev = new int[26];
+		
+		for (int i = 0; i < 26; i++) {
+			dist[i] = Integer.MAX_VALUE;
+			prev[i] = -1;
+		}
+		
+		dist[source] = 0;
+		
+		List<Integer> Q = getNodes();
+		while (Q.size() > 0) {
+			int nodeU = getShortestDistanceInQ(Q,dist);
+			Q.remove(new Integer(nodeU));
+			
+			if (dist[nodeU] == Integer.MAX_VALUE) {
+				break;
+			}
+			
+			for (int v = 0; v < graph[nodeU].length; v++) {
+				if (graph[nodeU][v] != null) {
+					int alt = dist[nodeU] + costBetween(nodeU,v,algorithm);
+					if (alt < dist[v]) {
+						dist[v] = alt;
+						prev[v] = nodeU;
+						
+						Q.remove(new Integer(nodeU));
+						Q.add(nodeU);
+					}
+				}
+			}
+			
+		}
+		
+		List<Link> path = new ArrayList<Link>();
+		
+		int next = dest;
+		if (prev[next] != -1) {
+			int current = prev[dest];
+			path.add(0, new Link(current,next));
+			while (prev[current] != -1) {
+				next = current;
+				current = prev[current];
+				path.add(0, new Link(current,next));
+			}
+		}
+		
+		return path;
+	}
+	
+	private int costBetween(int nodeU, int v, String algorithm) {
+		// algorithm = SHP SDP LLP
+		int cost = 0;
+		
+		if ("SHP".equals(algorithm)) {
+			cost = 1;
+		} else if ("SDP".equals(algorithm)) {
+			cost = graph[nodeU][v].delay;
+		} else if ("LLP".equals(algorithm)) {
+			
+		}
+		
+		return cost;
+	}
+
+	private List<Integer> getNodes() {
+		List<Integer> nodes = new ArrayList<Integer>();
+		
+		for (int i = 0; i < graph.length; i++) {
+			if (isConnected(i)) {
+				nodes.add(i);
+			}
+		}
+		
+		return nodes;
+	}
+	
+	private boolean isConnected(int node) {
+		boolean isConnected = false;
+		for (LinkInfo link: graph[node]) {
+			if (link != null) {
+				isConnected = true;
+				break;
+			}
+		}
+		return isConnected;
+	}
+	
+	private int getShortestDistanceInQ(List<Integer> Q, int[] dist) {
+		int closestNode = -1;
+		int shortestDistance = Integer.MAX_VALUE;
+		
+		for (Integer node: Q) {
+			if (dist[node] < shortestDistance) {
+				closestNode = node;
+				shortestDistance = dist[node];
+			}
+		}
+		return closestNode;
+	}
+
 	public void addLink(int node, int destination, LinkInfo linkInfo) {
 		// Add link in both directions, same reference
 		this.graph[node][destination] = linkInfo;
 		this.graph[destination][node] = linkInfo;
 	}
 
-	public LinkInfo getLink(int node, int destination) {
+	public LinkInfo getLinkInfo(int node, int destination) {
 		return this.graph[node][destination];
+	}
+	
+	public static class Link {
+		public final int source;
+		public final int destination;
+		
+		public Link(int source,int destination) {
+			this.source = source;
+			this.destination = destination;
+		}
 	}
 	
 	public static class LinkInfo {
@@ -89,6 +219,7 @@ public class VirtualNetwork {
 		
 		public void addCircuit(double expiryTime) {
 			expiryTimes.add(expiryTime);
+			connections++;
 		}
 		
 		public void removeExpiredCircuits(double currentTime) {
@@ -96,6 +227,7 @@ public class VirtualNetwork {
 				if (expiryTimes.get(i) <= currentTime) {
 					expiryTimes.remove(i);
 					i--;
+					connections--;
 				}
 			}
 		}
