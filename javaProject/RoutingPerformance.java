@@ -39,13 +39,13 @@ public class RoutingPerformance {
 			averageHops /= totalRequests;
 			averageCumulativeDelay /= totalRequests;
 			
-			System.out.println("total number of virtual circuit requests: " + totalRequests);
-			System.out.println("number of succesfully routed requests: " + (totalRequests - numFailedRequests));
-			System.out.println("percentage of succesfully routed request: " + (((double)(totalRequests - numFailedRequests)/totalRequests)*100));
-			System.out.println("number of blocked requests: " + numFailedRequests);
-			System.out.println("percentage of blocked requests: " + (((double)numFailedRequests/totalRequests)*100));
-			System.out.println("average number of hops per circuit: " + averageHops);
-			System.out.println("average cumulative propagation delay per circuit: " + averageCumulativeDelay);
+			System.out.printf("total number of virtual circuit requests: %d\n", totalRequests);
+			System.out.printf("number of succesfully routed requests: %d\n", (totalRequests - numFailedRequests));
+			System.out.printf("percentage of succesfully routed request: %.2f\n", (((double)(totalRequests - numFailedRequests)/totalRequests)*100));
+			System.out.printf("number of blocked requests: %d\n", numFailedRequests);
+			System.out.printf("percentage of blocked requests: %.2f\n", (((double)numFailedRequests/totalRequests)*100));
+			System.out.printf("average number of hops per circuit: %.2f\n", averageHops);
+			System.out.printf("average cumulative propagation delay per circuit: %.2f\n", averageCumulativeDelay);
 			
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
