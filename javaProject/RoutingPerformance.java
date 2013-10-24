@@ -36,8 +36,8 @@ public class RoutingPerformance {
 				totalRequests++;
 			}
 			
-			averageHops /= totalRequests;
-			averageCumulativeDelay /= totalRequests;
+			averageHops /= totalRequests-numFailedRequests;
+			averageCumulativeDelay /= totalRequests-numFailedRequests;
 			
 			System.out.printf("total number of virtual circuit requests: %d\n", totalRequests);
 			System.out.printf("number of succesfully routed requests: %d\n", (totalRequests - numFailedRequests));
